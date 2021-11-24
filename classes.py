@@ -1,5 +1,4 @@
 import numpy
-import pandas
 
 
 class NeuralNet:
@@ -12,6 +11,9 @@ class NeuralNet:
     def train(self, data):
         pass
 
+    def predict(self, input):
+        pass
+
 
 class InputLayer:
     def __init__(self, size):
@@ -19,7 +21,7 @@ class InputLayer:
         self.matrix = numpy.empty(size)
 
         for i in range(self.matrix.shape[0]):
-            self.matrix[i] = (1 - 0) * numpy.random.random(1) + 0
+            self.matrix[i] = 2 * numpy.random.random(1) - 1
 
 
 class OutputLayer:
@@ -29,13 +31,15 @@ class OutputLayer:
         self.matrix = numpy.empty(size)
 
         for i in range(self.matrix.shape[0]):
-            self.matrix[i] = (1 - 0) * numpy.random.random(1) + 0
+            self.matrix[i] = 2 * numpy.random.random(1) - 1
 
 
-class Layer:
+class HiddenLayer:
     def __init__(self, previous_layer, size):
-        self.matrix = numpy.empty(previous_layer.size, size)
+        self.size = size
+        self.matrix = numpy.empty((previous_layer.size, size))
 
-        for i, j in self.matrix:
-            self.matrix[i, j] = numpy.random.randn(-1, 1)
+        for i in range(0, self.matrix.shape[0]):
+            for j in range(0, self.matrix.shape[1]):
+                self.matrix[i, j] = 2 * numpy.random.random(1) - 1
 
