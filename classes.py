@@ -8,8 +8,9 @@ class NeuralNet:
     def layer(self, layer):
         self.layers.append(layer)
 
-    def train(self, data):
-        pass
+    def train(self, data, data_labels, epochs=1):
+        for i in range(0, epochs):
+            pass
 
     def predict(self, input):
         pass
@@ -28,10 +29,11 @@ class OutputLayer:
     def __init__(self, previous_layer, size):
         self.size = size
         self.previous_layer = previous_layer
-        self.matrix = numpy.empty(size)
+        self.matrix = numpy.empty((previous_layer.size, size))
 
-        for i in range(self.matrix.shape[0]):
-            self.matrix[i] = 2 * numpy.random.random(1) - 1
+        for i in range(0, self.matrix.shape[0]):
+            for j in range(0, self.matrix.shape[1]):
+                self.matrix[i, j] = 2 * numpy.random.random(1) - 1
 
 
 class HiddenLayer:

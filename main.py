@@ -1,26 +1,25 @@
-import classes as nn
+from neuralnetwork import NeuralNetwork
 import pandas
 
 
-def print_neural_network(neural_net: nn.NeuralNet):
-    for layer in neural_net.layers:
-        print(layer.matrix)
+def print_neural_network(neural_net: NeuralNetwork):
+    print(neural_net.weight_matrix1)
+    print(neural_net.weight_matrix2)
 
 
-neural_network = nn.NeuralNet()
-
-input_layer = nn.InputLayer(5)
-neural_network.layer(input_layer)
-
-hidden_layer = nn.HiddenLayer(input_layer, 4)
-neural_network.layer(hidden_layer)
-
-output_layer = nn.OutputLayer(hidden_layer, 1)
-neural_network.layer(output_layer)
+neural_network = NeuralNetwork(0.2)
+print_neural_network(neural_network)
 
 data = pandas.read_excel("titanic_dataset.xlsx")
-training_data = data.loc[0:, 'P/Class':]
-training_data_label = data['Survived']
-print(training_data)
+normalized_data = (data-data.min())/(data.max()-data.min())
 
-neural_network.train(training_data)
+rows = normalized_data.shape[0]
+bound = round(rows * 0.7)
+
+training_data = normalized_data.loc[0:bound, 'P/Class':]
+training_data_labels = normalized_data['Survived']
+
+print(training_data)
+print(training_data_labels)
+
+neural_network.train(training_data, training_data_labels)
