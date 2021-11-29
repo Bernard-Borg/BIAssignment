@@ -19,9 +19,13 @@ class NeuralNetwork:
             for j in range(0, self.weight_matrix2.shape[1]):
                 self.weight_matrix2[i, j] = 2 * numpy.random.random(1) - 1
 
+    def print(self):
+        print(self.weight_matrix1)
+        print(self.weight_matrix2)
+
     def train(self, data, data_labels):
-        epochs = 0
-        epochs_bad_facts = []
+        epochs = 0  # used as a counter for the number of epochs required for the network to converge
+        epochs_bad_facts = []  # used to store the number of bad facts per epoch (for use in bad facts vs epochs graph)
 
         while True:
             epochs += 1
@@ -29,6 +33,7 @@ class NeuralNetwork:
             bad_facts, good_facts = 0, 0
 
             for i in range(0, data.shape[0]):
+                # feed forward calculations
                 net_h = numpy.dot(data.loc[i], self.weight_matrix1)
                 out_h = sigmoid(net_h)
 
@@ -43,7 +48,7 @@ class NeuralNetwork:
                     error = data_labels.loc[i] - out_o[j]
                     errors.append(error)
 
-                    if error > self.error_threshold:
+                    if abs(error) > self.error_threshold:
                         bad_facts += 1
                         bad = True
                     else:
@@ -78,11 +83,10 @@ class NeuralNetwork:
 
             epochs_bad_facts.append((epochs, bad_facts))
 
-            if bad_facts == 0:
+            if epochs > 500:
                 break
 
-        print("Epochs required: " + str(epochs))
-        print("Epochs vs bad_facts: " + str(epochs_bad_facts))
+        return epochs_bad_facts
 
     def test(self, input_vector):
         net_h = numpy.dot(input_vector, self.weight_matrix1)
