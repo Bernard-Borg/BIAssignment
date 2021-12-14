@@ -6,8 +6,10 @@ def sigmoid(x):
 
 
 class NeuralNetwork:
-    def __init__(self, error_threshold=0.2):
+    def __init__(self, error_threshold=0.2, learning_rate=0.2, epochs=500):
         self.error_threshold = error_threshold
+        self.learning_rate = learning_rate
+        self.max_epochs = epochs
         self.weight_matrix1 = numpy.empty((5, 4))
         self.weight_matrix2 = numpy.empty((4, 1))
 
@@ -28,13 +30,16 @@ class NeuralNetwork:
         epochs_bad_facts = []  # used to store the number of bad facts per epoch (for use in bad facts vs epochs graph)
 
         while True:
-            epochs += 1
+
+            print(epochs)
 
             bad_facts, good_facts = 0, 0
 
             for i in range(0, data.shape[0]):
+                input_vector = data.loc[i]
+
                 # feed forward calculations
-                net_h = numpy.dot(data.loc[i], self.weight_matrix1)
+                net_h = numpy.dot(input_vector, self.weight_matrix1)
                 out_h = sigmoid(net_h)
 
                 net_o = numpy.dot(out_h, self.weight_matrix2)
@@ -60,12 +65,11 @@ class NeuralNetwork:
 
                     # calculate delta values for output neurons
                     for k in range(0, len(out_o)):
-                        delta_values1.append(out_o[k] * (1 - out_o[k]) * (errors[k]))
+                        delta_values1.append(out_o[k] * (1 - out_o[k]) * errors[k])
 
                     # iterate over the weights and update them (for the output neurons)
-                    weight_delta = self.error_threshold * delta_values1[0] * out_o[0]
-
                     for m in range(0, self.weight_matrix2.shape[0]):
+                        weight_delta = self.learning_rate * delta_values1[0] * out_h[m]
                         self.weight_matrix2[m][0] += weight_delta
 
                     delta_values2 = []
@@ -74,25 +78,40 @@ class NeuralNetwork:
                     for k in range(0, len(out_h)):
                         delta_values2.append(out_h[k] * (1 - out_h[k]) * (self.weight_matrix2[k][0] * delta_values1[0]))
 
-                    # iterate over the weights and update them (for the hidden neurons)
-                    for l in range(0, self.weight_matrix1.shape[1]):
-                        weight_delta = self.error_threshold * delta_values2[l] * out_h[l]
+                    for k in range(0, self.weight_matrix1.shape[0]):
+                        output = input_vector[k]
 
-                        for m in range(0, self.weight_matrix1.shape[0]):
-                            self.weight_matrix1[m, l] += weight_delta
+                        for m in range(0, self.weight_matrix1.shape[1]):
+                            weight_delta = self.learning_rate * delta_values2[m] * output
+                            self.weight_matrix1[k, m] += weight_delta
 
             epochs_bad_facts.append((epochs, bad_facts))
 
-            if epochs > 500:
+            if epochs > self.max_epochs:
                 break
+
+            epochs += 1
 
         return epochs_bad_facts
 
-    def test(self, input_vector):
-        net_h = numpy.dot(input_vector, self.weight_matrix1)
-        out_h = sigmoid(net_h)
+    def test(self, input_vectors, targets):
+        i = 0
 
-        net_o = numpy.dot(out_h, self.weight_matrix2)
-        out_o = sigmoid(net_o)
+        correct = 0
 
-        return out_o[0]
+        for i in range(input_vectors.shape[0]):
+            net_h = numpy.dot(input_vectors.loc[i], self.weight_matrix1)
+            out_h = sigmoid(net_h)
+
+            net_o = numpy.dot(out_h, self.weight_matrix2)
+            out_o = sigmoid(net_o)
+
+            print(out_o[0])
+            print(targets.loc[i])
+
+            if abs(targets.loc[i] - out_o[0]) <= self.error_threshold:
+                correct += 1
+
+        print(correct)
+
+        return (correct / i) * 100

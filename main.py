@@ -10,26 +10,29 @@ def print_neural_network(neural_net: NeuralNetwork):
 
 
 # Construct neural network object
-neural_network = NeuralNetwork(0.2)
+neural_network = NeuralNetwork(epochs=120)
 print_neural_network(neural_network)
 
 # Get the data from excel and store as pandas DataFrame
 data = pandas.read_excel("titanic_dataset.xlsx")
 
-# Get normalised data
-normalized_data = (data-data.min())/(data.max()-data.min())
+# Randomise the data rows
+randomised_data = data.sample(frac=1).reset_index(drop=True)
 
-# Calculate the number of rows required for 70%
-rows = normalized_data.shape[0]
-bound = round(rows * 0.7)
+# Normalise the data
+normalised_data = (randomised_data - randomised_data.min()) / (randomised_data.max() - randomised_data.min())
 
-# Take the first 70% of rows for training
-training_data = normalized_data.loc[0:bound, 'P/Class':]
-training_data_labels = normalized_data.loc[0:bound, 'Survived']
+# Calculate the number of rows required for 80%
+rows = normalised_data.shape[0]
+bound = round(rows * 0.8)
 
-# Take the last 30% of rows for testing
-testing_data = normalized_data.loc[bound:, 'P/Class':]
-testing_data_labels = normalized_data.loc[bound:, 'Survived']
+# Take the first 80% of rows for training
+training_data = normalised_data.loc[0:bound, 'P/Class':]
+training_data_labels = normalised_data.loc[0:bound, 'Survived']
+
+# Take the last 20% of rows for testing
+testing_data = normalised_data.loc[bound:, 'P/Class':].reset_index(drop=True)
+testing_data_labels = normalised_data.loc[bound:, 'Survived'].reset_index(drop=True)
 
 # Train network
 epochs_vs_bad_facts = neural_network.train(training_data, training_data_labels)
@@ -47,6 +50,8 @@ plot.plot(x_axis, y_axis)
 plot.title("Bad facts vs epochs")
 plot.xlabel("Epochs")
 plot.ylabel("Bad facts")
-plot.show()
 
-print(epochs_vs_bad_facts)
+correct_percentage = neural_network.test(testing_data, testing_data_labels)
+print(correct_percentage)
+
+plot.show()
