@@ -10,16 +10,8 @@ class NeuralNetwork:
         self.error_threshold = error_threshold
         self.learning_rate = learning_rate
         self.max_epochs = epochs
-        self.weight_matrix1 = numpy.empty((5, 4))
-        self.weight_matrix2 = numpy.empty((4, 1))
-
-        for i in range(0, self.weight_matrix1.shape[0]):
-            for j in range(0, self.weight_matrix1.shape[1]):
-                self.weight_matrix1[i, j] = 2 * numpy.random.random(1) - 1
-
-        for i in range(0, self.weight_matrix2.shape[0]):
-            for j in range(0, self.weight_matrix2.shape[1]):
-                self.weight_matrix2[i, j] = 2 * numpy.random.random(1) - 1
+        self.weight_matrix1 = 2 * numpy.random.random((5, 4)) - 1
+        self.weight_matrix2 = 2 * numpy.random.random((4, 1)) - 1
 
     def print(self):
         print(self.weight_matrix1)
@@ -64,7 +56,7 @@ class NeuralNetwork:
                     delta_values1 = []
 
                     # calculate delta values for output neurons
-                    for k in range(0, len(out_o)):
+                    for k in range(len(out_o)):
                         delta_values1.append(out_o[k] * (1 - out_o[k]) * errors[k])
 
                     # iterate over the weights and update them (for the output neurons)
@@ -72,11 +64,7 @@ class NeuralNetwork:
                         weight_delta = self.learning_rate * delta_values1[0] * out_h[m]
                         self.weight_matrix2[m][0] += weight_delta
 
-                    delta_values2 = []
-
-                    # calculate delta values for hidden neurons
-                    for k in range(0, len(out_h)):
-                        delta_values2.append(out_h[k] * (1 - out_h[k]) * (self.weight_matrix2[k][0] * delta_values1[0]))
+                    delta_values2 = self.calculate_hidden_layer_delta_values(self.weight_matrix2, out_h, delta_values1)
 
                     for k in range(0, self.weight_matrix1.shape[0]):
                         output = input_vector[k]
@@ -94,6 +82,19 @@ class NeuralNetwork:
 
         return epochs_bad_facts
 
+    def calculate_hidden_layer_delta_values(self, matrix, current_values, previous_deltas):
+        delta_values = []
+
+        for k in range(len(current_values)):
+            summation = 0
+
+            for m in range(len(previous_deltas)):
+                summation += matrix[k][m] * previous_deltas[m]
+
+            delta_values.append(current_values[k] * (1 - current_values[k]) * summation)
+
+        return delta_values
+
     def test(self, input_vectors, targets):
         i = 0
 
@@ -110,8 +111,9 @@ class NeuralNetwork:
             print(targets.loc[i])
 
             if abs(targets.loc[i] - out_o[0]) <= self.error_threshold:
+                print("Correct!")
                 correct += 1
 
         print(correct)
 
-        return (correct / i) * 100
+        return (correct / (i + 1)) * 100
