@@ -10,7 +10,7 @@ def print_neural_network(neural_net: NeuralNetwork):
 
 
 # Construct neural network object
-neural_network = NeuralNetwork(epochs=120)
+neural_network = NeuralNetwork(epochs=350)
 print_neural_network(neural_network)
 
 # Get the data from excel and store as pandas DataFrame

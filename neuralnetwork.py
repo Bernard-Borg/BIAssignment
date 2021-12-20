@@ -22,12 +22,11 @@ class NeuralNetwork:
         epochs_bad_facts = []  # used to store the number of bad facts per epoch (for use in bad facts vs epochs graph)
 
         while True:
-
             print(epochs)
 
             bad_facts, good_facts = 0, 0
 
-            for i in range(0, data.shape[0]):
+            for i in range(data.shape[0]):
                 input_vector = data.loc[i]
 
                 # feed forward calculations
@@ -59,23 +58,13 @@ class NeuralNetwork:
                     for k in range(len(out_o)):
                         delta_values1.append(out_o[k] * (1 - out_o[k]) * errors[k])
 
-                    # iterate over the weights and update them (for the output neurons)
-                    for m in range(0, self.weight_matrix2.shape[0]):
-                        weight_delta = self.learning_rate * delta_values1[0] * out_h[m]
-                        self.weight_matrix2[m][0] += weight_delta
-
+                    self.update_weights(self.weight_matrix2, delta_values1, out_h)
                     delta_values2 = self.calculate_hidden_layer_delta_values(self.weight_matrix2, out_h, delta_values1)
-
-                    for k in range(0, self.weight_matrix1.shape[0]):
-                        output = input_vector[k]
-
-                        for m in range(0, self.weight_matrix1.shape[1]):
-                            weight_delta = self.learning_rate * delta_values2[m] * output
-                            self.weight_matrix1[k, m] += weight_delta
+                    self.update_weights(self.weight_matrix1, delta_values2, input_vector)
 
             epochs_bad_facts.append((epochs, bad_facts))
 
-            if epochs > self.max_epochs:
+            if epochs >= self.max_epochs:
                 break
 
             epochs += 1
@@ -95,9 +84,16 @@ class NeuralNetwork:
 
         return delta_values
 
+    def update_weights(self, matrix, delta_values, previous_values):
+        for x in range(matrix.shape[0]):
+            output = previous_values[x]
+
+            for y in range(matrix.shape[1]):
+                weight_delta = self.learning_rate * delta_values[y] * output
+                matrix[x][y] += weight_delta
+
     def test(self, input_vectors, targets):
         i = 0
-
         correct = 0
 
         for i in range(input_vectors.shape[0]):
@@ -107,13 +103,7 @@ class NeuralNetwork:
             net_o = numpy.dot(out_h, self.weight_matrix2)
             out_o = sigmoid(net_o)
 
-            print(out_o[0])
-            print(targets.loc[i])
-
             if abs(targets.loc[i] - out_o[0]) <= self.error_threshold:
-                print("Correct!")
                 correct += 1
-
-        print(correct)
 
         return (correct / (i + 1)) * 100
