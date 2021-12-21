@@ -13,18 +13,12 @@ class NeuralNetwork:
         self.weight_matrix1 = 2 * numpy.random.random((5, 4)) - 1
         self.weight_matrix2 = 2 * numpy.random.random((4, 1)) - 1
 
-    def print(self):
-        print(self.weight_matrix1)
-        print(self.weight_matrix2)
-
     def train(self, data, data_labels):
         epochs = 0  # used as a counter for the number of epochs required for the network to converge
         epochs_bad_facts = []  # used to store the number of bad facts per epoch (for use in bad facts vs epochs graph)
 
-        while True:
-            print(epochs)
-
-            bad_facts, good_facts = 0, 0
+        while epochs < self.max_epochs:
+            bad_facts = 0
 
             for i in range(data.shape[0]):
                 input_vector = data.loc[i]
@@ -47,8 +41,6 @@ class NeuralNetwork:
                     if abs(error) > self.error_threshold:
                         bad_facts += 1
                         bad = True
-                    else:
-                        good_facts += 1
 
                 # if it is a bad fact, perform error back propagation
                 if bad:
@@ -63,10 +55,6 @@ class NeuralNetwork:
                     self.update_weights(self.weight_matrix1, delta_values2, input_vector)
 
             epochs_bad_facts.append((epochs, bad_facts))
-
-            if epochs >= self.max_epochs:
-                break
-
             epochs += 1
 
         return epochs_bad_facts

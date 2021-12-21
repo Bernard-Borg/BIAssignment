@@ -2,16 +2,8 @@ from neuralnetwork import NeuralNetwork
 import pandas
 import matplotlib.pyplot as plot
 
-
-# Helper function to print neural network (for debugging)
-def print_neural_network(neural_net: NeuralNetwork):
-    print(neural_net.weight_matrix1)
-    print(neural_net.weight_matrix2)
-
-
 # Construct neural network object
-neural_network = NeuralNetwork(epochs=350)
-print_neural_network(neural_network)
+neural_network = NeuralNetwork(epochs=1000)
 
 # Get the data from excel and store as pandas DataFrame
 data = pandas.read_excel("titanic_dataset.xlsx")
@@ -36,7 +28,6 @@ testing_data_labels = normalised_data.loc[bound:, 'Survived'].reset_index(drop=T
 
 # Train network
 epochs_vs_bad_facts = neural_network.train(training_data, training_data_labels)
-print_neural_network(neural_network)
 
 # Output matplotlib epochs vs bad facts graph
 x_axis = []
@@ -52,6 +43,6 @@ plot.xlabel("Epochs")
 plot.ylabel("Bad facts")
 
 correct_percentage = neural_network.test(testing_data, testing_data_labels)
-print(correct_percentage)
+print("Accuracy: " + str(correct_percentage))
 
 plot.show()
