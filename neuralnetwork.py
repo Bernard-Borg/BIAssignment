@@ -97,7 +97,12 @@ class NeuralNetwork:
             net_o = numpy.dot(out_h, self.weight_matrix2)
             out_o = sigmoid(net_o)
 
-            if abs(targets.loc[i] - out_o[0]) <= self.error_threshold:
+            if out_o[0] >= 0.5:
+                output = 1
+            else:
+                output = 0
+
+            if output == targets.loc[i]:
                 correct += 1
 
         return (correct / (i + 1)) * 100

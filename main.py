@@ -3,7 +3,7 @@ import pandas
 import matplotlib.pyplot as plot
 
 # Construct neural network object
-neural_network = NeuralNetwork()
+neural_network = NeuralNetwork(epochs=1000)
 
 # Get the data from excel and store as pandas DataFrame
 data = pandas.read_excel("titanic_dataset.xlsx")
@@ -38,7 +38,8 @@ for i, j in epochs_vs_bad_facts:
     y_axis.append(j)
 
 plot.plot(x_axis, y_axis)
-plot.title("Bad facts vs epochs")
+plot.title("Bad facts vs epochs (learning rate: " + str(neural_network.learning_rate) +
+           ", error threshold: " + str(neural_network.error_threshold) + ")")
 plot.xlabel("Epochs")
 plot.ylabel("Bad facts")
 
