@@ -6,13 +6,12 @@ def sigmoid(x):
 
 
 class NeuralNetwork:
-    def __init__(self, error_threshold=0.2, learning_rate=0.2, epochs=1000):
+    def __init__(self, error_threshold=0.2, learning_rate=0.2, epochs=500):
         self.error_threshold = error_threshold
         self.learning_rate = learning_rate
         self.max_epochs = epochs
         self.weight_matrix1 = 2 * numpy.random.random((5, 4)) - 1
-        self.weight_matrix2 = 2 * numpy.random.random((4, 3)) - 1
-        self.weight_matrix3 = 2 * numpy.random.random((3, 1)) - 1
+        self.weight_matrix2 = 2 * numpy.random.random((4, 1)) - 1
 
     def train(self, data, data_labels):
         epochs = 0  # used as a counter for the number of epochs required for the network to converge
@@ -28,10 +27,7 @@ class NeuralNetwork:
                 net_h = numpy.dot(input_vector, self.weight_matrix1)
                 out_h = sigmoid(net_h)
 
-                net_h2 = numpy.dot(out_h, self.weight_matrix2)
-                out_h2 = sigmoid(net_h2)
-
-                net_o = numpy.dot(out_h2, self.weight_matrix3)
+                net_o = numpy.dot(out_h, self.weight_matrix2)
                 out_o = sigmoid(net_o)
 
                 errors = []
@@ -54,11 +50,9 @@ class NeuralNetwork:
                     for k in range(len(out_o)):
                         delta_values1.append(out_o[k] * (1 - out_o[k]) * errors[k])
 
-                    self.update_weights(self.weight_matrix3, delta_values1, out_h2)
-                    delta_values2 = self.calculate_hidden_layer_delta_values(self.weight_matrix3, out_h2, delta_values1)
-                    self.update_weights(self.weight_matrix2, delta_values2, out_h)
-                    delta_values3 = self.calculate_hidden_layer_delta_values(self.weight_matrix2, out_h, delta_values2)
-                    self.update_weights(self.weight_matrix1, delta_values3, input_vector)
+                    self.update_weights(self.weight_matrix2, delta_values1, out_h)
+                    delta_values2 = self.calculate_hidden_layer_delta_values(self.weight_matrix2, out_h, delta_values1)
+                    self.update_weights(self.weight_matrix1, delta_values2, input_vector)
 
             epochs_bad_facts.append((epochs, bad_facts))
             epochs += 1
@@ -100,13 +94,9 @@ class NeuralNetwork:
             net_h = numpy.dot(input_vectors.loc[i], self.weight_matrix1)
             out_h = sigmoid(net_h)
 
-            net_h2 = numpy.dot(out_h, self.weight_matrix2)
-            out_h2 = sigmoid(net_h2)
-
-            net_o = numpy.dot(out_h2, self.weight_matrix3)
+            net_o = numpy.dot(out_h, self.weight_matrix2)
             out_o = sigmoid(net_o)
 
-            # determines whether the output was correct
             if abs(targets.loc[i] - out_o[0]) <= self.error_threshold:
                 correct += 1
 
