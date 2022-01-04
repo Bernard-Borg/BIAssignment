@@ -3,7 +3,7 @@ import pandas
 import matplotlib.pyplot as plot
 
 # Construct neural network object
-neural_network = NeuralNetwork(epochs=1000)
+neural_network = NeuralNetwork()
 
 # Get the data from excel and store as pandas DataFrame
 data = pandas.read_excel("titanic_dataset.xlsx")
